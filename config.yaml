@@ -1,0 +1,70 @@
+# 智能笔记检索系统配置
+
+# 笔记目录配置
+notes:
+  directory: /Users/AJ/logseq-file
+  exclude_patterns:
+    - "*.pdf"
+    - "*.mp4"
+    - "*.xmind"
+    - ".git"
+    - "node_modules"
+
+# 向量化服务配置
+embedding:
+  api_base: https://api.openai.com
+  model: text-embedding-3-large # 重新切换到大模型：3072维→1536维，速度提升2-3倍
+  batch_size: 200 # 降低批次：500→200（避免响应体过大超时）
+  dimension: 3072 # text-embedding-3-small 维度
+  max_concurrent: 6 # 提升并发：5→6（批次变小，增加并发补偿）
+
+# LLM 配置
+llm:
+  api_base: https://api.openai.com
+  model: gpt-5 # 可选: deepseek, supermind-agent-v1, gemini-2.5-pro, gpt-5, grok-4-fast
+  temperature: 0.5
+  max_tokens: 8000
+
+# 检索策略配置
+search:
+  # 本地/网络结果比例
+  local_ratio: 0.8
+  network_ratio: 0.2
+
+  # 时间衰减权重
+  time_decay:
+    recent_months: 3 # 近期定义：3个月
+    recent_boost: 1.5 # 近期权重倍数
+    old_years: 1 # 旧文档定义：1年
+    old_penalty: 1 # 旧文档权重倍数
+
+  # 检索参数
+  top_k_local: 30 # 本地检索数量（召回量）
+  top_k_network: 5 # 网络检索数量
+  similarity_threshold: 0.4 # 相似度阈值（降低以提高召回率）
+
+  # 上下文扩展配置
+  context_before: 3 # 返回前面 N 个 chunk
+  context_after: 2 # 返回后面 N 个 chunk
+
+# 索引配置
+indexing:
+  chunk_size: 800 # 分块大小（字符数）
+  chunk_overlap: 100 # 块重叠（字符数）
+  min_chunk_size: 300 # 最小分块大小（字符数）
+  update_interval: 3600 # 增量更新间隔（秒）
+
+# 服务端口配置
+server:
+  backend_port: 8000
+  frontend_port: 3000
+  cors_origins:
+    - http://localhost:3000
+    - http://127.0.0.1:3000
+
+# 数据存储配置
+storage:
+  data_dir: ./data
+  metadata_db: metadata.db
+  vector_index: vectors.index
+  cache_dir: cache
